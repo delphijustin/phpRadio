@@ -1,10 +1,11 @@
-<?php $database = file(".htsongs",FILE_IGNORE_NEW_LINES |  FILE_SKIP_EMPTY_LINES );
+<?php include 'radioConfig.php';
+$database = file(".htsongs",FILE_IGNORE_NEW_LINES |  FILE_SKIP_EMPTY_LINES );
 $filename = $database[$_GET['index']*1];
 $filepath = dirname($filename);
 switch($_GET['typ']*1){
 case 0:header('Content-type: audio/mpeg');
-if(!is_readable($filename)){header("Content-length: ".filesize("error.mp3"));
-readfile("error.mp3");die();}header("Content-length: ".filesize($filename));
+if(!is_readable($filename)){if(!$noContentlength)header("Content-length: ".filesize("error.mp3"));
+readfile("error.mp3");die();}if(!$noContentlength)header("Content-length: ".filesize($filename));
 break;
 case 1:header("Content-type: image/jpeg");
 $pictures = glob($filepath."/*.jpg");
