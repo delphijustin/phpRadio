@@ -5,6 +5,7 @@
 <script type="text/javascript">
 var artist,album,songname;
 var infoExists=false;
+<?php include 'radioConfig.php';?>
 function loadPHPRadio(){
 if(!infoExists){return;}
 artist=document.getElementById("artist").innerText;
@@ -18,6 +19,12 @@ location.href="phpRadio.php?t="+now.getTime();
 function eBay(){window.open("https://www.ebay.com/sch/i.html?_nkw="+escape(artist+' '+album));}
 function lyrics(){window.open("https://search.azlyrics.com/search.php?q="+escape(songname+' '+artist));}
 function google(){window.open("https://www.google.com/search?q="+escape(artist));}
+<?php if(strlen($_GET['t'])==0&&$nsfw){?>
+if(confirm("This radio station may have content unsafe for kids,Continue?")){
+nextSong();
+}else{
+  document.body.innerHTML="Playback aborted.";
+}<?php } ?>
 </script>
 <style type="text/css">
 .center{text-align: center;}
@@ -63,11 +70,12 @@ Those scripts will scan and create the .htsongs file.
 randSong:
 $mp3index=mt_rand(0,count($mp3s)-1);$mp3id=base_convert($mp3index,10,36);
 if(count($played)>=count($mp3s)){$played=array();}
-if(in_array($mp3id,$played)){goto randSong;}
+if(in_array($mp3id,$played)&&$unusedFirst){goto randSong;}
 $played[]=$mp3id;
 echo artwork($mp3s[$mp3index],$mp3index)."<br>".getMP3Tags($mp3s[$mp3index])."<br>";
-?><script type="text/javascript">document.cookie = "played=<?php echo implode(".",$played);?>";</script>
-<audio controls autoplay onended="nextSong()">
+if($unusedFirst){?><script type="text/javascript">document.cookie = "played=<?php echo implode(".",$played);?>";</script>
+<?php } ?>
+<audio controls <?php if(strlen($_GET['t'])>0||!$nsfw)echo "autoplay ";?>onended="nextSong()">
 <source src="getfile.php?index=<?php echo $mp3index;?>" type="audio/mpeg">
 This page only works with HTML5 browsers.
 </audio><input type="button" value="Skip" onclick="nextSong()"><p class="center">
